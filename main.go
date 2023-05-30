@@ -45,21 +45,33 @@ func main() {
 				w.Show()
 			}),
 			fyne.NewMenuItem(getStatus(), func() {
+				m.Items[1].Label = getStatus()
+				m.Refresh()
 			}),
 			fyne.NewMenuItem("Start Server", func() {
 				startServer()
+				m.Items[1].Label = getStatus()
+				m.Refresh()
 			}),
 			fyne.NewMenuItem("Stop Server", func() {
 				stopServer()
+				m.Items[1].Label = getStatus()
+				m.Refresh()
 			}),
 			fyne.NewMenuItem("Create Tunnel", func() {
 				createTunnel()
+				m.Items[1].Label = getStatus()
+				m.Refresh()
 			}),
 			fyne.NewMenuItem("Remove Tunnel", func() {
 				removeTunnel()
+				m.Items[1].Label = getStatus()
+				m.Refresh()
 			}))
 		desk.SetSystemTrayMenu(m)
 		desk.SetSystemTrayIcon(theme.ComputerIcon())
+		m.Items[1].Label = getStatus()
+		m.Refresh()
 	}
 	w.SetContent(widget.NewLabel("Alkmini Management System"))
 	w.SetCloseIntercept(func() {
@@ -83,8 +95,6 @@ func main() {
 				process.SetText(PROCESS_START_ERROR)
 				status.SetText(STATUS_DOWN)
 			} else {
-				m.Items[1].Label = STARTING_SERVER
-				m.Refresh()
 				status.SetText(STARTING_SERVER)
 				waitUntilUp()
 				process.SetText(PROCESS_STARTED)
