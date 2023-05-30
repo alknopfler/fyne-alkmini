@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
@@ -20,23 +21,25 @@ const (
 	PROCESS_SUSPEND_ERROR = "Process: Server suspend error"
 	PROCESS_STOP          = "Process: Stopping Server"
 	PROCESS_TUNNEL        = "Process: Tunneling"
+	PROCESS_TUNNEL_DEL    = "Process: Tunnel removing"
 	PROCESS_TUNNELED      = "Process: Tunnel running"
+	PROCESS_TUNNELED_DEL  = "Process: Tunnel removed"
 	PROCESS_TUNNEL_ERROR  = "Process: Tunnel error"
 	HIDDEN                = ""
 	GETSERVERSTATUSLABEL  = "Get Server Status"
 	STARTSERVERLABEL      = "Start Server"
 	STOPSERVERLABEL       = "Stop Server"
-	TUNNELLABEL           = "Tunnel sshuttle"
+	TUNNELLABEL           = "Create Tunnel"
+	TUNNELREMOVELABEL     = "Remove Tunnel"
 )
 
 func main() {
 	a := app.New()
 	w := a.NewWindow(PROGNAME)
-	label := widget.NewLabel(PROGNAME)
+	w.Resize(fyne.NewSize(400, 400))
 	status := widget.NewLabel(HIDDEN)
 	process := widget.NewLabel(HIDDEN)
 	w.SetContent(container.NewVBox(
-		label,
 		status,
 		widget.NewSeparator(),
 		process,
@@ -80,6 +83,18 @@ func main() {
 			} else {
 				process.SetText(PROCESS_TUNNELED)
 				status.SetText(STATUS_TUNNELED)
+			}
+			time.Sleep(5 * time.Second)
+			process.SetText(HIDDEN)
+		}),
+		widget.NewButtonWithIcon(TUNNELREMOVELABEL, theme.LogoutIcon(), func() {
+			process.SetText(PROCESS_TUNNEL_DEL)
+			if removeTunnel() != nil {
+				process.SetText(PROCESS_TUNNEL_ERROR)
+				status.SetText(getStatus())
+			} else {
+				process.SetText(PROCESS_TUNNELED_DEL)
+				status.SetText(getStatus())
 			}
 			time.Sleep(5 * time.Second)
 			process.SetText(HIDDEN)
