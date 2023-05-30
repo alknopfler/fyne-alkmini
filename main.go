@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"time"
@@ -31,11 +32,40 @@ const (
 	STOPSERVERLABEL       = "Stop Server"
 	TUNNELLABEL           = "Create Tunnel"
 	TUNNELREMOVELABEL     = "Remove Tunnel"
+	STARTING_SERVER       = "Starting Server..."
 )
 
 func main() {
 	a := app.New()
 	w := a.NewWindow(PROGNAME)
+	var m *fyne.Menu
+	if desk, ok := a.(desktop.App); ok {
+		m = fyne.NewMenu("alkmini",
+			fyne.NewMenuItem("Open app", func() {
+				w.Show()
+			}),
+			fyne.NewMenuItem(getStatus(), func() {
+			}),
+			fyne.NewMenuItem("Start Server", func() {
+				startServer()
+			}),
+			fyne.NewMenuItem("Stop Server", func() {
+				stopServer()
+			}),
+			fyne.NewMenuItem("Create Tunnel", func() {
+				createTunnel()
+			}),
+			fyne.NewMenuItem("Remove Tunnel", func() {
+				removeTunnel()
+			}))
+		desk.SetSystemTrayMenu(m)
+		desk.SetSystemTrayIcon(theme.ComputerIcon())
+	}
+	w.SetContent(widget.NewLabel("Alkmini Management System"))
+	w.SetCloseIntercept(func() {
+		w.Hide()
+	})
+	w.SetIcon(theme.ComputerIcon())
 	w.Resize(fyne.NewSize(400, 400))
 	status := widget.NewLabel(HIDDEN)
 	process := widget.NewLabel(HIDDEN)
@@ -52,15 +82,19 @@ func main() {
 			if startServer() != nil {
 				process.SetText(PROCESS_START_ERROR)
 				status.SetText(STATUS_DOWN)
-				return
 			} else {
+				m.Items[1].Label = STARTING_SERVER
+				m.Refresh()
+				status.SetText(STARTING_SERVER)
 				waitUntilUp()
 				process.SetText(PROCESS_STARTED)
 				status.SetText(STATUS_UP)
-			}
-			time.Sleep(5 * time.Second)
-			process.SetText("")
 
+			}
+			m.Items[1].Label = getStatus()
+			m.Refresh()
+			time.Sleep(5 * time.Second)
+			process.SetText(HIDDEN)
 		}),
 		widget.NewButtonWithIcon(STOPSERVERLABEL, theme.MediaStopIcon(), func() {
 			process.SetText(PROCESS_STOP)
@@ -72,6 +106,8 @@ func main() {
 				process.SetText(PROCESS_SUSPENDED)
 				status.SetText(STATUS_DOWN)
 			}
+			m.Items[1].Label = getStatus()
+			m.Refresh()
 			time.Sleep(5 * time.Second)
 			process.SetText(HIDDEN)
 		}),
@@ -84,6 +120,8 @@ func main() {
 				process.SetText(PROCESS_TUNNELED)
 				status.SetText(STATUS_TUNNELED)
 			}
+			m.Items[1].Label = getStatus()
+			m.Refresh()
 			time.Sleep(5 * time.Second)
 			process.SetText(HIDDEN)
 		}),
@@ -92,13 +130,19 @@ func main() {
 			if removeTunnel() != nil {
 				process.SetText(PROCESS_TUNNEL_ERROR)
 				status.SetText(getStatus())
+				m.Items[1].Label = getStatus()
+				m.Refresh()
 			} else {
 				process.SetText(PROCESS_TUNNELED_DEL)
 				status.SetText(getStatus())
 			}
+			m.Items[1].Label = getStatus()
+			m.Refresh()
 			time.Sleep(5 * time.Second)
 			process.SetText(HIDDEN)
 		}),
 	))
+	m.Items[1].Label = getStatus()
+	m.Refresh()
 	w.ShowAndRun()
 }
