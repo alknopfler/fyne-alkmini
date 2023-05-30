@@ -73,7 +73,7 @@ func main() {
 		m.Items[1].Label = getStatus()
 		m.Refresh()
 	}
-	w.SetContent(widget.NewLabel("Alkmini Management System"))
+	w.SetContent(widget.NewLabel(PROGNAME))
 	w.SetCloseIntercept(func() {
 		w.Hide()
 	})

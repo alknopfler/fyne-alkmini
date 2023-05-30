@@ -23,7 +23,9 @@ func getStatus() string {
 }
 
 func startServer() error {
+
 	state := getStatus()
+
 	if state == STATUS_DOWN {
 		cmd := exec.Command("/Users/alknopfler/bin/alkmini-wake")
 		_, err := cmd.Output()
