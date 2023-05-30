@@ -28,7 +28,7 @@ func startServer() error {
 
 	if state == STATUS_DOWN {
 		cmd := exec.Command("/Users/alknopfler/bin/alkmini-wake")
-		_, err := cmd.Output()
+		err := cmd.Run()
 		if err != nil {
 			log.Println("Error executing command startServer: ", err.Error())
 			return err
